@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The sun never sets at Sunrise Oilfield Supply</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #eef1f4;
+        }
+        .header {
+            background: #1e3a5f;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        .menu-toggle {
+            display: none;
+            background: #1e3a5f;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1.2em;
+            cursor: pointer;
+            width: 100%;
+        }
+        .dashboard {
+            display: flex;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+        .sidebar {
+            width: 300px;
+            background: #1e3a5f;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+            height: 100vh;
+            box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.5);
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .location {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background: #2c3e50;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .location:hover {
+            background: #1abc9c;
+        }
+        .oil-price-widget {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            margin: 15px;
+        }
+        #map {
+            flex: 1;
+            height: 100vh;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                left: -300px;
+                width: 280px;
+                height: 100vh;
+                z-index: 1000;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html">
+            <img src="img/sunrise_oilfield_supply_logo.jpg" alt="Sunrise Oilfield Supply Logo" style="height: 50px; float: left; margin-right: 15px;">
+        </a>
+        Sunrise Oilfield Supply Locations
+    </div>
+    
+
+    <button class="menu-toggle">☰ Locations</button>
+    <div class="dashboard">
+        <div class="sidebar" id="sidebar">
+            <h2>Oil Prices</h2>
+            <div class="oil-price-widget">
+                <script type="text/javascript" src="https://www.oil-price.net/TABLE2/gen.php?lang=en"></script>
+                <noscript>To get the WTI <a href="http://www.oil-price.net/dashboard.php?lang=en#TABLE2">oil price</a>, please enable Javascript.</noscript>
+            </div>
+            <h2>Sunrise Oilfield Locations</h2>
+            <div id="location-list"></div>
+        </div>
+        <div id="map"></div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([39.0119, -98.4842], 5);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        const locations = [
+            { name: "El Dorado", coords: [37.8170, -96.8625], address: "764 N. Oil Hill Rd., El Dorado, KS 67042", phone: "316-321-9323" },
+            { name: "Garden City", coords: [37.9717, -100.8727], address: "2106 W. Jones Ave., Garden City, KS 67846", phone: "620-276-1700" },
+            { name: "Great Bend", coords: [38.3647, -98.7648], address: "1310 10th St, Great Bend, KS 67530", phone: "620-796-2878" },
+            { name: "Greensburg", coords: [37.6028, -99.2934], address: "408 E Kansas Ave., Greensburg, KS 67054", phone: "620-xxx-xxxx" },
+            { name: "Hays", coords: [38.8792, -99.3268], address: "1720 Highway 40 Bypass, Hays, KS 67601", phone: "785-650-0199" },
+            { name: "Hennessey", coords: [36.1092, -97.8989], address: "106 E Jack Choate Ave, Hennessey, OK 73742", phone: "405-853-2231" },
+        ];
+
+        const locationList = document.getElementById("location-list");
+        const sidebar = document.getElementById("sidebar");
+        const menuToggle = document.querySelector(".menu-toggle");
+
+        menuToggle.addEventListener("click", () => {
+            sidebar.classList.toggle("active");
+        });
+
+        locations.forEach((location) => {
+            const marker = L.marker(location.coords).addTo(map)
+                .bindPopup(`<b>${location.name}</b><br>${location.address}<br>Phone: ${location.phone}`);
+
+            const locationItem = document.createElement("div");
+            locationItem.classList.add("location");
+            locationItem.innerHTML = `<b>${location.name}</b><br>${location.address}<br>${location.phone}`;
+            locationItem.onclick = () => {
+                map.setView(location.coords, 10);
+                marker.openPopup();
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove("active");
+                }
+            };
+            locationList.appendChild(locationItem);
+        });
+    </script>
+</body>
+</html>
